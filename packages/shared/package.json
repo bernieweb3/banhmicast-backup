@@ -1,0 +1,11 @@
+{
+    "name": "@banhmicast/shared",
+    "version": "0.1.0",
+    "description": "BanhMiCast - Shared constants, types, and ABIs",
+    "type": "module",
+    "exports": {
+        "./constants": "./constants.js",
+        "./types": "./types.js"
+    },
+    "license": "MIT"
+}

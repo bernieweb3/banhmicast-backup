@@ -1,0 +1,6 @@
+[package]
+name = "banhmicast"
+edition = "2024.beta"
+
+[addresses]
+banhmicast = "0x0"

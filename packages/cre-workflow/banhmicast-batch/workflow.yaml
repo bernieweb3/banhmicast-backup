@@ -1,0 +1,18 @@
+# ==========================================================================
+# CRE WORKFLOW SETTINGS FILE — BanhMiCast Batch Processor
+# ==========================================================================
+# Workflow: banhmicast-batch
+# Description: Privacy-preserving LMSR batch computation for BanhMiCast
+#   Prediction Market on Sui. Fetches encrypted bets from Walrus storage,
+#   runs LMSR pricing inside the CRE WASM sandbox, outputs ExecutionResult.
+#
+# Usage:
+#   cre workflow simulate banhmicast-batch --target testnet-settings
+# ==========================================================================
+
+testnet-settings:
+  user-workflow:
+    workflow-name: "banhmicast-batch-testnet"
+  workflow-artifacts:
+    workflow-path: "."
+    config-path: "./config.testnet.json"

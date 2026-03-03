@@ -1,0 +1,11 @@
+# ==========================================================================
+# CRE PROJECT SETTINGS FILE — BanhMiCast
+# ==========================================================================
+# Project-wide settings shared across all workflows.
+# Each target defines account and rpcs groups.
+# ==========================================================================
+
+testnet-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com

@@ -1,0 +1,19 @@
+{
+  "name": "@banhmicast/cre",
+  "version": "0.1.0",
+  "description": "BanhMiCast - Chainlink CRE Off-chain Engine (LMSR, Batching, Decryption)",
+  "type": "module",
+  "main": "src/cre-handler.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage --forceExit",
+    "lint": "eslint src/ tests/"
+  },
+  "keywords": ["prediction-market", "lmsr", "chainlink-cre", "sui"],
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@jest/globals": "^29.7.0",
+    "eslint": "^8.56.0"
+  }
+}

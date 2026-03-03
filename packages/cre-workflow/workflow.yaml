@@ -1,0 +1,16 @@
+# BanhMiCast Batch Workflow Configuration
+# Reference: https://docs.chain.link/cre/reference/project-configuration
+
+workflowName: banhmicast-batch
+
+# Entry point: compiled to WASM by CRE CLI
+code: ./banhmicast-batch/main.go
+
+# Targets (override project.yaml settings per environment)
+targets:
+  testnet-settings:
+    configFile: ./banhmicast-batch/config.testnet.json
+    # secrets: ./secrets.yaml   # Uncomment when using DON threshold decryption keys
+
+# Trigger: Cron — every 2 minutes (one BanhMiCast batch epoch)
+cron: "*/2 * * * *"
