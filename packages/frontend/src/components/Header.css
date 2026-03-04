@@ -1,0 +1,119 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 11, 13, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--steel);
+}
+
+.header__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xl);
+}
+
+/* Logo */
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    text-decoration: none;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.header__logo-icon {
+    font-size: 1.5rem;
+}
+
+.header__logo-text {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--banhmi-gold), #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Nav */
+.header__nav {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.header__nav-link {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.header__nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.header__nav-link.active {
+    color: var(--banhmi-gold);
+    background: rgba(var(--banhmi-gold-rgb), 0.08);
+}
+
+/* Actions */
+.header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.header__cre-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header__cre-label {
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+/* Override dapp-kit ConnectButton for Obsidian Crust theme */
+.header__connect-btn button,
+.header [class*="ConnectButton"] button {
+    background: var(--steel) !important;
+    border: 1px solid var(--steel-light) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-sm) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+    transition: all var(--transition-fast) !important;
+}
+
+.header__connect-btn button:hover,
+.header [class*="ConnectButton"] button:hover {
+    border-color: var(--sui-cyan) !important;
+    box-shadow: 0 0 12px rgba(var(--sui-cyan-rgb), 0.2) !important;
+}
+
+@media (max-width: 768px) {
+    .header__inner {
+        padding: 0 var(--space-md);
+        gap: var(--space-md);
+    }
+
+    .header__cre-status {
+        display: none;
+    }
+}

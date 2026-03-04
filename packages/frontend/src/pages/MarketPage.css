@@ -1,0 +1,63 @@
+.market-page {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: var(--space-lg);
+    align-items: flex-start;
+}
+
+/* Left: Context */
+.market-page__context .card {
+    position: sticky;
+    top: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.market-page__badge-row {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.market-page__title {
+    font-size: 1.3rem;
+    line-height: 1.3;
+}
+
+.market-page__stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--steel);
+}
+
+.market-page__stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.market-page__cre-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--space-sm);
+}
+
+/* Right: Betting */
+.market-page__betting .card {
+    position: sticky;
+    top: 88px;
+}
+
+@media (max-width: 1024px) {
+    .market-page {
+        grid-template-columns: 1fr;
+    }
+
+    .market-page__context .card,
+    .market-page__betting .card {
+        position: static;
+    }
+}

@@ -1,0 +1,114 @@
+.world-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.world-table__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.world-table__header h3 {
+    font-size: 1.1rem;
+}
+
+.text-sm {
+    font-size: 0.82rem;
+}
+
+.world-table__ribbon {
+    margin-bottom: var(--space-sm);
+}
+
+.world-table__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-md);
+}
+
+.world-table__cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: var(--charcoal);
+    border: 1px solid var(--steel);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-align: left;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow: hidden;
+}
+
+/* Heat background overlay */
+.world-table__cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--heat-color, var(--sui-cyan));
+    opacity: var(--heat-opacity, 0.05);
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+.world-table__cell:hover {
+    border-color: rgba(var(--banhmi-gold-rgb), 0.4);
+    transform: translateY(-2px);
+}
+
+.world-table__cell:hover::before {
+    opacity: calc(var(--heat-opacity, 0.05) + 0.05);
+}
+
+/* Selected state */
+.world-table__cell--selected {
+    border-color: var(--banhmi-gold);
+    box-shadow: 0 0 20px rgba(var(--banhmi-gold-rgb), 0.15),
+        inset 0 0 30px rgba(var(--banhmi-gold-rgb), 0.06);
+}
+
+.world-table__cell--selected::before {
+    opacity: calc(var(--heat-opacity, 0.05) + 0.1);
+}
+
+.world-table__cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.world-table__cell-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.world-table__cell-index {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+}
+
+.world-table__cell-price {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    position: relative;
+}
+
+.world-table__cell-return {
+    font-size: 0.85rem;
+    font-weight: 600;
+    position: relative;
+    animation: fade-in 0.2s ease;
+}
+
+.world-table__cell-delta {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    position: relative;
+}
