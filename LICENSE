@@ -1,0 +1,163 @@
+PROPRIETARY SOURCE CODE LICENSE
+BanhMiCast — Prediction Market on Sui
+Copyright (c) 2026 Bernie Nguyen. All rights reserved.
+
+Contact: bernie.web3@gmail.com
+
+================================================================================
+
+IMPORTANT: READ THIS LICENSE AGREEMENT CAREFULLY BEFORE USING, COPYING,
+MODIFYING, OR DISTRIBUTING THIS SOFTWARE.
+
+By accessing or using any part of this source code, you agree to be bound by
+the terms of this License. If you do not agree, you must not access or use
+this source code in any way.
+
+================================================================================
+
+1. DEFINITIONS
+
+   "Software" means all source code, compiled binaries, documentation, and
+   associated files in this repository.
+
+   "Author" means Bernie Nguyen (bernie.web3@gmail.com), the sole copyright
+   holder of the Software.
+
+   "You" or "Licensee" means any individual or legal entity that accesses,
+   copies, uses, or modifies the Software.
+
+   "Commercial Purpose" means any use, reproduction, modification, or
+   distribution of the Software, in whole or in part, that is intended to
+   generate revenue, profit, or commercial advantage, directly or indirectly.
+
+   "Research / Educational Purpose" means non-commercial use of the Software
+   solely for academic research, personal study, or educational activities,
+   with no commercial gain involved.
+
+   "Hackathon" means any time-limited competitive event in which participants
+   build and submit software projects for prizes, recognition, or awards.
+
+   "Startup Competition" means any competition, accelerator programme, pitch
+   event, or similar activity whose primary purpose is the formation,
+   evaluation, or funding of a new commercial venture or business.
+
+================================================================================
+
+2. RESEARCH AND EDUCATIONAL USE
+
+   2.1  Use of the Software for Research / Educational Purposes REQUIRES prior
+        written permission from the Author. Permission must be requested by
+        email to bernie.web3@gmail.com and must be explicitly granted in
+        writing before any use begins.
+
+   2.2  Use of the Software for any Commercial Purpose is STRICTLY PROHIBITED,
+        regardless of whether prior permission was sought or granted for a
+        different purpose.
+
+================================================================================
+
+3. MODIFICATION
+
+   3.1  Modification of the Software for any purpose REQUIRES prior written
+        permission from the Author. Permission must be requested by email to
+        bernie.web3@gmail.com and must be explicitly granted in writing before
+        any modification begins.
+
+   3.2  Modification of the Software for any Commercial Purpose is STRICTLY
+        PROHIBITED, regardless of whether prior permission was sought or
+        granted for a different purpose.
+
+================================================================================
+
+4. HACKATHON USE
+
+   4.1  Use or modification of the Software for the purpose of participating
+        in any Hackathon is STRICTLY PROHIBITED unless BOTH of the following
+        conditions are satisfied simultaneously:
+
+        (a) The Licensee has obtained explicit prior written permission from
+            the Author via email to bernie.web3@gmail.com; AND
+
+        (b) At least seventy percent (70%) of the codebase submitted to the
+            Hackathon consists of original code written by the Licensee that
+            is materially different from the Software ("Modification
+            Threshold"). Meeting the Modification Threshold is the sole
+            responsibility of the Licensee and may be subject to verification
+            by the Author upon request.
+
+   4.2  Any violation of either condition set out in Section 4.1 shall result
+        in the immediate and automatic revocation of all rights granted to the
+        Licensee under this License, including but not limited to rights to
+        use, copy, and modify the Software.
+
+   4.3  The revocation in Section 4.2 shall take effect without further notice
+        and without prejudice to any other legal remedy available to the Author.
+
+================================================================================
+
+5. STARTUP COMPETITION USE
+
+   5.1  Use or modification of the Software, in whole or in part, for the
+        purpose of participating in any Startup Competition is STRICTLY AND
+        UNCONDITIONALLY PROHIBITED.
+
+   5.2  No permission, authorisation, or waiver will be granted for any use
+        described in Section 5.1, under any circumstances.
+
+================================================================================
+
+6. GENERAL PROHIBITIONS
+
+   The following acts are prohibited without limitation:
+
+   (a) Distributing, sublicensing, selling, or transferring the Software or
+       any derivative work to any third party;
+   (b) Removing or altering any copyright, trademark, or attribution notice
+       contained in the Software;
+   (c) Using the name, brand, or identity of the Author to endorse or promote
+       products derived from the Software without prior written consent;
+   (d) Any use of the Software not expressly permitted by this License.
+
+================================================================================
+
+7. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL
+   THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN
+   AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+================================================================================
+
+8. GOVERNING LAW
+
+   This License shall be governed by and construed in accordance with
+   applicable law. Any disputes arising under or in connection with this
+   License shall be subject to the exclusive jurisdiction of the competent
+   courts of the jurisdiction in which the Author resides.
+
+================================================================================
+
+9. CONTACT
+
+   To request permission for any use or modification described in this License,
+   or to report a suspected violation, please contact:
+
+       Bernie Nguyen
+       Email: bernie.web3@gmail.com
+
+   Permission requests must clearly state:
+     - Your full name and affiliation (if any)
+     - The specific use or modification you intend to make
+     - The purpose and context of the intended use
+     - The event name and organiser (for Hackathon permission requests)
+
+================================================================================
+
+   Unauthorised use, copying, modification, or distribution of this Software,
+   or any portion of it, may result in severe civil and criminal penalties, and
+   will be prosecuted to the maximum extent possible under applicable law.
+
+================================================================================
