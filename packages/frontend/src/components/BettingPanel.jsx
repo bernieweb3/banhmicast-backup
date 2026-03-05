@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { Transaction } from '@mysten/sui/transactions';
-import { bcs } from '@mysten/sui/bcs';
 import { PACKAGE_ID, WALRUS_PUBLISHER, MIST_PER_SUI } from '../lib/sui-config';
 import TransactionFeedback from './TransactionFeedback';
 import './BettingPanel.css';
@@ -73,16 +72,14 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
             const amountMist = BigInt(Math.round(amountNum * MIST_PER_SUI));
             const [coin] = tx.splitCoins(tx.gas, [amountMist]);
 
-            // Serialize hash bytes using BCS
-            const hashBcsBytes = bcs.vector(bcs.U8).serialize(hashArray);
-
             tx.moveCall({
                 target: `${PACKAGE_ID}::escrow::commit_bet`,
                 arguments: [
                     tx.object(market.id),
                     coin,
-                    tx.pure(bcs.String.serialize(blobId)),
-                    tx.pure(hashBcsBytes),
+                    tx.pure.string(blobId),
+                    tx.pure.vector('u8', hashArray),
+                    tx.object('0x6'), // Sui shared Clock object
                 ],
             });
 
