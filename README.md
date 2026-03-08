@@ -321,7 +321,7 @@ See [`LICENSE`](./LICENSE) for the full, legally binding terms.
 
 | Role | Name |
 |:---|:---|
-| 🏆 **Leader** | Anh Phung |
+| 🏆 **Leader** | Phung The Anh |
 | 💻 **Vice Leader / Core Developer** | Bernie Nguyen |
 | 🔬 **Member / Researcher** | Khai Truong |
 
