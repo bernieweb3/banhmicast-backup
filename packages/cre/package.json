@@ -9,7 +9,12 @@
     "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage --forceExit",
     "lint": "eslint src/ tests/"
   },
-  "keywords": ["prediction-market", "lmsr", "chainlink-cre", "sui"],
+  "keywords": [
+    "prediction-market",
+    "lmsr",
+    "chainlink-cre",
+    "ethereum"
+  ],
   "license": "MIT",
   "devDependencies": {
     "jest": "^29.7.0",

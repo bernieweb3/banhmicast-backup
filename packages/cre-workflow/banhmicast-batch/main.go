@@ -6,9 +6,9 @@
 //
 // Pipeline:
 //  1. TRIGGER: Cron (every 2 minutes by default)
-//  2. FETCH:   Encrypted bets from Walrus HTTP API (external data source)
+//  2. INPUT:   Encrypted bets from batch commitments (on-chain event log)
 //  3. COMPUTE: LMSR batch pricing (privacy-preserving in WASM sandbox)
-//  4. OUTPUT:  ExecutionResult JSON (signed by DON, ready for Sui submission)
+//  4. OUTPUT:  ExecutionResult JSON (signed by DON, ready for Sepolia submission)
 //
 // Usage:
 //
@@ -23,7 +23,6 @@ import (
 	"sort"
 	"time"
 
-	crehttp "github.com/smartcontractkit/cre-sdk-go/capabilities/networking/http"
 	"github.com/smartcontractkit/cre-sdk-go/capabilities/scheduler/cron"
 	"github.com/smartcontractkit/cre-sdk-go/cre"
 	"github.com/smartcontractkit/cre-sdk-go/cre/wasm"
@@ -35,7 +34,6 @@ import (
 
 type Config struct {
 	Schedule              string            `json:"schedule"`
-	WalrusURL             string            `json:"walrusUrl"`
 	MarketID              string            `json:"marketId"`
 	LiquidityB            string            `json:"liquidityB"`
 	BatchCommitments      []BatchCommitment `json:"batchCommitments"`
@@ -45,7 +43,7 @@ type Config struct {
 // BatchCommitment is a single encrypted bet from the on-chain event log.
 type BatchCommitment struct {
 	User           string `json:"user"`
-	BlobID         string `json:"blobId"`
+	EncryptedData  string `json:"encryptedData"`
 	CommitmentHash string `json:"commitmentHash"`
 }
 
@@ -66,7 +64,7 @@ type UserAllocation struct {
 	OutcomeIndex int    `json:"outcomeIndex"`
 }
 
-// ExecutionResult is the final CRE output — signed by DON, submitted to Sui.
+// ExecutionResult is the final CRE output — signed by DON, submitted to Sepolia.
 type ExecutionResult struct {
 	MarketID        string           `json:"marketId"`
 	BatchID         int              `json:"batchId"`
@@ -115,68 +113,19 @@ func banhmicastBatchHandler(cfg *Config, rt cre.Runtime, _ *cron.Payload) (*Exec
 		}, nil
 	}
 
-	// ── Step 1: Fetch encrypted blobs from Walrus via CRE HTTP client ──────
-	// Uses `cre.RunInNodeMode` to get NodeRuntime for the CRE HTTP capability.
-	logger.Info("📦 Fetching blobs from Walrus",
-		slog.Int("count", len(cfg.BatchCommitments)),
-		slog.String("walrusUrl", cfg.WalrusURL))
-
-	// fetchResult is used for DON consensus — nodes must fetch identical Walrus data.
-	type fetchResult struct {
-		blobMap map[string][]byte `consensus_aggregation:"identical"`
-		errMsg  string            `consensus_aggregation:"identical"`
-	}
-
-	fetchPromise := cre.RunInNodeMode(cfg, rt,
-		func(cfg *Config, nodeRuntime cre.NodeRuntime) (fetchResult, error) {
-			client := &crehttp.Client{}
-			blobMap := make(map[string][]byte)
-			for _, commitment := range cfg.BatchCommitments {
-				url := fmt.Sprintf("%s/v1/blobs/%s", cfg.WalrusURL, commitment.BlobID)
-				req := &crehttp.Request{
-					Url:    url,
-					Method: "GET",
-				}
-				resp, err := client.SendRequest(nodeRuntime, req).Await()
-				if err != nil {
-					return fetchResult{errMsg: fmt.Errorf("walrus fetch %s: %w", commitment.BlobID, err).Error()}, nil
-				}
-				if resp.StatusCode == 404 {
-					// Blob not found — skip (commitment might be invalid)
-					continue
-				}
-				if resp.StatusCode != 200 {
-					return fetchResult{errMsg: fmt.Errorf("walrus HTTP %d for blob %s", resp.StatusCode, commitment.BlobID).Error()}, nil
-				}
-				blobMap[commitment.BlobID] = resp.Body
-			}
-			return fetchResult{blobMap: blobMap}, nil
-		},
-		cre.ConsensusIdenticalAggregation[fetchResult](),
-	)
-
-	fr, err := fetchPromise.Await()
-	if err != nil {
-		return nil, fmt.Errorf("[WALRUS_FETCH_FAILED] %w", err)
-	}
-	if fr.errMsg != "" {
-		return nil, fmt.Errorf("[WALRUS_FETCH_FAILED] %s", fr.errMsg)
-	}
-	blobMap := fr.blobMap
-	logger.Info("✅ Walrus blobs fetched", slog.Int("count", len(blobMap)))
-
-	// ── Step 2: Decrypt & verify each commitment ─────────────────────────
+	// ── Step 1: Decrypt & verify each commitment ──────────────────────────
 	// ⚠️ SECURITY: plaintext only exists inside this WASM sandbox
+	logger.Info("🔓 Decrypting commitments", slog.Int("count", len(cfg.BatchCommitments)))
+
 	var orders []DecryptedOrder
 	rejected := 0
 	for _, commitment := range cfg.BatchCommitments {
-		encData, ok := blobMap[commitment.BlobID]
-		if !ok {
-			logger.Warn("Blob not found", slog.String("user", commitment.User))
+		if commitment.EncryptedData == "" {
+			logger.Warn("Empty encrypted data", slog.String("user", commitment.User))
 			rejected++
 			continue
 		}
-		order, err := decryptAndVerify(encData, commitment)
+		order, err := decryptAndVerify([]byte(commitment.EncryptedData), commitment)
 		if err != nil {
 			logger.Warn("Commitment rejected",
 				slog.String("user", commitment.User),
@@ -190,12 +139,12 @@ func banhmicastBatchHandler(cfg *Config, rt cre.Runtime, _ *cron.Payload) (*Exec
 		slog.Int("valid", len(orders)),
 		slog.Int("rejected", rejected))
 
-	// ── Step 3: Deterministic sort by commitmentHash ──────────────────────
+	// ── Step 2: Deterministic sort by commitmentHash ──────────────────────
 	sort.Slice(orders, func(i, j int) bool {
 		return orders[i].CommitmentHash < orders[j].CommitmentHash
 	})
 
-	// ── Step 4: Parse market state ────────────────────────────────────────
+	// ── Step 3: Parse market state ────────────────────────────────────────
 	b, ok := new(big.Int).SetString(cfg.LiquidityB, 10)
 	if !ok {
 		return nil, fmt.Errorf("invalid liquidityB: %s", cfg.LiquidityB)
@@ -208,7 +157,7 @@ func banhmicastBatchHandler(cfg *Config, rt cre.Runtime, _ *cron.Payload) (*Exec
 		}
 	}
 
-	// ── Step 5: LMSR batch execution ──────────────────────────────────────
+	// ── Step 4: LMSR batch execution ──────────────────────────────────────
 	var allocations []UserAllocation
 	for _, order := range orders {
 		if order.OutcomeIndex < 0 || order.OutcomeIndex >= len(runningShares) {
@@ -229,7 +178,7 @@ func banhmicastBatchHandler(cfg *Config, rt cre.Runtime, _ *cron.Payload) (*Exec
 		}
 	}
 
-	// ── Step 6: Compute final prices ─────────────────────────────────────
+	// ── Step 5: Compute final prices ─────────────────────────────────────
 	prices := CalculatePrices(runningShares, b)
 	supplyStrs := make([]string, len(runningShares))
 	for i, s := range runningShares {
@@ -253,7 +202,7 @@ func banhmicastBatchHandler(cfg *Config, rt cre.Runtime, _ *cron.Payload) (*Exec
 	logger.Info("🎯 ExecutionResult computed",
 		slog.Int("allocations", len(allocations)),
 		slog.String("result", string(resultJSON)))
-	logger.Info("✅ Batch complete — ready for Sui submission")
+	logger.Info("✅ Batch complete — ready for Sepolia submission")
 
 	return result, nil
 }

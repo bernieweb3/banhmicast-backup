@@ -1,7 +1,7 @@
-import { useCurrentAccount } from '@mysten/dapp-kit';
+import { useWallet } from '../lib/useWallet';
 import './PortfolioPage.css';
 
-// Demo positions — in production: useSuiClientQuery to fetch UserPosition objects
+// Demo positions — in production: use ethers.js Contract to fetch UserPosition data
 const DEMO_POSITIONS = [
     {
         id: 'pos-1',
@@ -25,7 +25,7 @@ const DEMO_POSITIONS = [
     },
     {
         id: 'pos-3',
-        marketTitle: 'Sui TVL > $5B by Q3 2026?',
+        marketTitle: 'Ethereum L2 TVL > $100B by Q3 2026?',
         outcome: 'No',
         shares: '200.0',
         avgPrice: '0.52',
@@ -39,13 +39,13 @@ const DEMO_PENDING = [
     {
         id: 'pending-1',
         marketTitle: 'Fed Cuts Rate in June 2026?',
-        amount: '10.0 SUI',
+        amount: '0.1 ETH',
         submittedAt: '2 minutes ago',
     },
 ];
 
 export default function PortfolioPage() {
-    const account = useCurrentAccount();
+    const { account } = useWallet();
 
     if (!account) {
         return (
@@ -53,7 +53,7 @@ export default function PortfolioPage() {
                 <div className="portfolio__connect card">
                     <h2>🔗 Connect Your Wallet</h2>
                     <p className="text-secondary">
-                        Connect your Sui wallet to view your prediction positions.
+                        Connect your wallet to view your prediction positions.
                     </p>
                 </div>
             </div>
@@ -64,7 +64,7 @@ export default function PortfolioPage() {
         <div className="portfolio">
             <h1 className="portfolio__header">My Portfolio</h1>
             <p className="text-secondary portfolio__address font-mono">
-                {account.address.slice(0, 6)}...{account.address.slice(-4)}
+                {account.slice(0, 6)}...{account.slice(-4)}
             </p>
 
             {/* Pending Commitments */}

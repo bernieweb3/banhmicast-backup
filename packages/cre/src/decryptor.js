@@ -34,10 +34,10 @@ export function createDecryptor(options = {}) {
     /**
      * Decrypt an encrypted bet payload and verify its integrity.
      *
-     * @param {Uint8Array} encryptedData - Raw encrypted blob from Walrus.
+     * @param {Uint8Array} encryptedData - Raw encrypted data.
      * @param {Uint8Array} donKeyShare - DON's threshold key share for decryption.
      * @param {string} expectedHash - Hex-encoded SHA3-256 hash from on-chain commitment.
-     * @param {string} user - Bettor's Sui address (for building the DecryptedOrder).
+     * @param {string} user - Bettor's ETH address (for building the DecryptedOrder).
      * @returns {import('../../shared/types.js').DecryptedOrder} The decrypted order.
      * @throws {Error} If decryption fails or hash doesn't match (tamper detection).
      */

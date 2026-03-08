@@ -50,7 +50,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--heat-color, var(--sui-cyan));
+    background: var(--heat-color, var(--eth-blue));
     opacity: var(--heat-opacity, 0.05);
     transition: opacity var(--transition-normal);
     pointer-events: none;

@@ -1,9 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
+import { useWallet } from '../lib/useWallet';
 import './Header.css';
 
 export default function Header() {
-    const account = useCurrentAccount();
+    const { account, connect, disconnect, isWrongChain } = useWallet();
 
     return (
         <header className="header">
@@ -39,7 +39,19 @@ export default function Header() {
                     </div>
 
                     {/* Wallet Connect */}
-                    <ConnectButton className="header__connect-btn" />
+                    {isWrongChain ? (
+                        <button className="header__connect-btn btn-primary" onClick={connect}>
+                            Switch to Sepolia
+                        </button>
+                    ) : account ? (
+                        <button className="header__connect-btn btn-secondary" onClick={disconnect}>
+                            {account.slice(0, 6)}...{account.slice(-4)}
+                        </button>
+                    ) : (
+                        <button className="header__connect-btn btn-primary" onClick={connect}>
+                            Connect Wallet
+                        </button>
+                    )}
                 </div>
             </div>
         </header>

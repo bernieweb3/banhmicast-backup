@@ -1,7 +1,6 @@
 {
     "schedule": "*/2 * * * *",
-    "walrusUrl": "https://aggregator.walrus-testnet.walrus.space",
-    "marketId": "0x352a63e9364222707eeeaae0d49bac9bce2b089a2ceeeebf0716f7701932c32f",
+    "marketId": "1",
     "liquidityB": "1000",
     "simulatedSharesSupply": [
         "0",
@@ -9,13 +8,13 @@
     ],
     "batchCommitments": [
         {
-            "user": "0xf2446652a28718799ce13c6f1895befa36259169e5da884dff2448ca20f7b63b",
-            "blobId": "n2G6mbMwuyqexLcAaC0B59C9bWVDVsVvNEBdjV8vHR8",
+            "user": "0xd7a9788d08140237abbc482bf7981647eb0419a1",
+            "encryptedData": "{\"outcomeIndex\":0,\"investmentMist\":\"1000000000000000000\"}",
             "commitmentHash": "0000000000000000000000000000000000000000000000000000000000000001"
         },
         {
-            "user": "0x0000000000000000000000000000000000000000000000000000000000000002",
-            "blobId": "tacU4b-5psvUkZaAHg65Qio6tahkAF9KeC6NYBxYNvM",
+            "user": "0x0000000000000000000000000000000000000002",
+            "encryptedData": "{\"outcomeIndex\":1,\"investmentMist\":\"500000000000000000\"}",
             "commitmentHash": "0000000000000000000000000000000000000000000000000000000000000002"
         }
     ]

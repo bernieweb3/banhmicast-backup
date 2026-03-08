@@ -40,7 +40,7 @@
     border-radius: 50%;
     background: radial-gradient(circle,
             rgba(var(--banhmi-gold-rgb), 0.08) 0%,
-            rgba(var(--sui-cyan-rgb), 0.04) 40%,
+            rgba(var(--eth-blue-rgb), 0.04) 40%,
             transparent 70%);
     filter: blur(80px);
     pointer-events: none;

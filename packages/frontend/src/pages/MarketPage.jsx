@@ -4,73 +4,71 @@ import WorldTable from '../components/WorldTable';
 import BettingPanel from '../components/BettingPanel';
 import './MarketPage.css';
 
-// Demo market data — in production, fetched from Sui via useSuiMarket hook.
-// NOTE: All IDs must be valid 64-char hex Sui addresses (0x-prefixed) so that
-// the Sui SDK's tx.object() serialization doesn't crash with a ValiError.
+// Demo market data — in production, fetched from Sepolia via ethers.js Contract reads.
 const DEMO_MARKET_DATA = {
-    '0x352a63e9364222707eeeaae0d49bac9bce2b089a2ceeeebf0716f7701932c32f': {
-        id: '0x352a63e9364222707eeeaae0d49bac9bce2b089a2ceeeebf0716f7701932c32f',
+    1: {
+        id: 1,
         title: 'ETH/BTC Ratio > 0.05 by June 2026?',
         description: 'Predict whether ETH will reclaim the 0.05 BTC ratio. Joint-outcome with macro sentiment.',
         outcomes: ['Yes', 'No'],
         prices: [62, 38],
         liquidityB: '1,000',
-        totalVolume: '12,450',
+        totalVolume: '12.45',
         lastBatchId: 42,
         isActive: true,
     },
-    '0xaa00000000000000000000000000000000000000000000000000000000000002': {
-        id: '0xaa00000000000000000000000000000000000000000000000000000000000002',
-        title: 'Sui TVL > $5B by Q3 2026?',
-        description: 'Will the Sui DeFi ecosystem surpass $5 billion in total value locked?',
+    2: {
+        id: 2,
+        title: 'Ethereum L2 TVL > $100B by Q3 2026?',
+        description: 'Will the combined Ethereum L2 ecosystem surpass $100 billion in total value locked?',
         outcomes: ['Yes', 'No'],
         prices: [45, 55],
         liquidityB: '2,000',
-        totalVolume: '8,200',
+        totalVolume: '8.2',
         lastBatchId: 18,
         isActive: true,
     },
-    '0xbb00000000000000000000000000000000000000000000000000000000000003': {
-        id: '0xbb00000000000000000000000000000000000000000000000000000000000003',
+    3: {
+        id: 3,
         title: 'Bitcoin All-Time High Before July 2026?',
         description: 'Will Bitcoin break its previous all-time high before July 1st, 2026?',
         outcomes: ['Yes', 'No'],
         prices: [71, 29],
         liquidityB: '5,000',
-        totalVolume: '34,800',
+        totalVolume: '34.8',
         lastBatchId: 156,
         isActive: true,
     },
-    '0xcc00000000000000000000000000000000000000000000000000000000000004': {
-        id: '0xcc00000000000000000000000000000000000000000000000000000000000004',
+    4: {
+        id: 4,
         title: 'Fed Cuts Rate in June 2026?',
         description: 'Federal Reserve interest rate cut prediction.',
         outcomes: ['Cut', 'Hold', 'Hike'],
         prices: [40, 48, 12],
         liquidityB: '3,000',
-        totalVolume: '5,100',
+        totalVolume: '5.1',
         lastBatchId: 7,
         isActive: true,
     },
-    '0xdd00000000000000000000000000000000000000000000000000000000000005': {
-        id: '0xdd00000000000000000000000000000000000000000000000000000000000005',
-        title: 'Chainlink CCIP Launches on Sui?',
-        description: 'Will Chainlink CCIP be live on Sui mainnet in 2026?',
+    5: {
+        id: 5,
+        title: 'Chainlink CCIP Cross-Chain Volume > $50B?',
+        description: 'Will Chainlink CCIP monthly cross-chain volume exceed $50 billion in 2026?',
         outcomes: ['Yes', 'No'],
         prices: [33, 67],
         liquidityB: '800',
-        totalVolume: '1,900',
+        totalVolume: '1.9',
         lastBatchId: 3,
         isActive: true,
     },
-    '0xee00000000000000000000000000000000000000000000000000000000000006': {
-        id: '0xee00000000000000000000000000000000000000000000000000000000000006',
+    6: {
+        id: 6,
         title: 'Vietnam National Football — SEA Games Gold?',
         description: 'Will Vietnam win gold in football at the 2027 SEA Games?',
         outcomes: ['Gold', 'No Gold'],
         prices: [55, 45],
         liquidityB: '1,500',
-        totalVolume: '22,000',
+        totalVolume: '22.0',
         lastBatchId: 89,
         isActive: false,
     },
@@ -83,7 +81,7 @@ export default function MarketPage() {
     const { id } = useParams();
     const [selectedOutcome, setSelectedOutcome] = useState(null);
 
-    // In production: useSuiMarket(id) hook
+    // In production: use ethers.js Contract.getMarket(id) hook
     const market = DEMO_MARKET_DATA[id] || Object.values(DEMO_MARKET_DATA)[0];
 
     return (
@@ -103,7 +101,7 @@ export default function MarketPage() {
                     <div className="market-page__stats">
                         <div className="market-page__stat">
                             <span className="text-muted">Total Volume</span>
-                            <span className="font-mono">{market.totalVolume} SUI</span>
+                            <span className="font-mono">{market.totalVolume} ETH</span>
                         </div>
                         <div className="market-page__stat">
                             <span className="text-muted">Liquidity (b)</span>

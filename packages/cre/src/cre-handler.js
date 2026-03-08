@@ -4,7 +4,7 @@
  * This is the script that the Chainlink DON invokes during each batch epoch.
  * It orchestrates the full pipeline:
  *
- *   1. Fetch encrypted blobs from Walrus.
+ *   1. Receive encrypted payloads from batch input.
  *   2. Decrypt each payload using the DON key share.
  *   3. Verify commitment hashes against on-chain data.
  *   4. Execute the batch through the LMSR engine.
@@ -16,7 +16,6 @@
  * @module @banhmicast/cre/cre-handler
  */
 
-import { createWalrusClient } from './walrus-client.js';
 import { createDecryptor } from './decryptor.js';
 import { executeBatch } from './batch-processor.js';
 
@@ -24,12 +23,10 @@ import { executeBatch } from './batch-processor.js';
  * Creates the CRE handler with injected dependencies.
  *
  * @param {Object} [deps] - Dependency injection for testing.
- * @param {Object} [deps.walrusClient] - Walrus client instance.
  * @param {Object} [deps.decryptor] - Decryptor instance.
  * @returns {Object} Handler with `handleBatch` method.
  */
 export function createCreHandler(deps = {}) {
-    const walrusClient = deps.walrusClient || createWalrusClient();
     const decryptor = deps.decryptor || createDecryptor();
 
     /**
@@ -51,35 +48,22 @@ export function createCreHandler(deps = {}) {
                 return executeBatch(input.currentState, []);
             }
 
-            // ── Step 1: Fetch encrypted blobs from Walrus ───────────────────
-            const blobIds = input.batch.map((c) => c.blobId);
-            let blobMap;
-            try {
-                blobMap = await walrusClient.fetchBatchBlobs(blobIds);
-            } catch (err) {
-                throw createError(
-                    'WALRUS_FETCH_FAILED',
-                    `Failed to fetch blobs from Walrus: ${err.message}`
-                );
-            }
-
-            // ── Step 2-3: Decrypt & verify each commitment ──────────────────
+            // ── Step 1: Decrypt & verify each commitment ────────────────────
             const decryptedOrders = [];
             const rejectedCommitments = [];
 
             for (const commitment of input.batch) {
-                const encryptedData = blobMap.get(commitment.blobId);
-                if (!encryptedData) {
+                if (!commitment.encryptedData || commitment.encryptedData.length === 0) {
                     rejectedCommitments.push({
                         user: commitment.user,
-                        reason: 'Blob not found in Walrus response',
+                        reason: 'Missing encrypted data',
                     });
                     continue;
                 }
 
                 try {
                     const order = decryptor.decryptPayload(
-                        encryptedData,
+                        commitment.encryptedData,
                         donKeyShare,
                         commitment.commitmentHash,
                         commitment.user
@@ -94,7 +78,7 @@ export function createCreHandler(deps = {}) {
                 }
             }
 
-            // ── Step 4: Execute batch through LMSR engine ───────────────────
+            // ── Step 2: Execute batch through LMSR engine ───────────────────
             const result = executeBatch(input.currentState, decryptedOrders);
 
             // Attach metadata for debugging (no sensitive data)

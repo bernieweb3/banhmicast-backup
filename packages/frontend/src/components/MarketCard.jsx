@@ -39,7 +39,7 @@ export default function MarketCard({ market }) {
                             className="prob-bar__segment"
                             style={{
                                 width: `${price}%`,
-                                background: i === 0 ? 'var(--sui-cyan)' : i === 1 ? 'var(--banhmi-gold)' : 'var(--hyper-lime)',
+                                background: i === 0 ? 'var(--eth-blue, #627eea)' : i === 1 ? 'var(--banhmi-gold)' : 'var(--hyper-lime)',
                             }}
                         />
                     ))}
@@ -58,7 +58,7 @@ export default function MarketCard({ market }) {
             <div className="market-card__stats">
                 <div className="market-card__stat">
                     <span className="text-muted">Volume</span>
-                    <span className="font-mono">{totalVolume} SUI</span>
+                    <span className="font-mono">{totalVolume} ETH</span>
                 </div>
                 <div className="market-card__stat">
                     <span className="text-muted">Liquidity (b)</span>

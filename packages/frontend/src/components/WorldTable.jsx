@@ -80,7 +80,7 @@ export default function WorldTable({ outcomes, prices, selectedOutcome, onSelect
 
 function getOutcomeColor(index) {
     const colors = [
-        'var(--sui-cyan)',
+        'var(--eth-blue)',
         'var(--banhmi-gold)',
         'var(--hyper-lime)',
         'var(--electric-rose)',

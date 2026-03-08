@@ -103,8 +103,8 @@
 
 .header__connect-btn button:hover,
 .header [class*="ConnectButton"] button:hover {
-    border-color: var(--sui-cyan) !important;
-    box-shadow: 0 0 12px rgba(var(--sui-cyan-rgb), 0.2) !important;
+    border-color: var(--eth-blue) !important;
+    box-shadow: 0 0 12px rgba(var(--eth-blue-rgb), 0.2) !important;
 }
 
 @media (max-width: 768px) {

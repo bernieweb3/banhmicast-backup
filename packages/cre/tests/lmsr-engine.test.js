@@ -129,7 +129,7 @@ describe('solveLmsr', () => {
     test('basic: investing yields positive shares', () => {
         const shares = [0n, 0n];
         const b = 1000n;
-        const investment = 100_000_000n; // 0.1 SUI
+        const investment = 100_000_000n; // 0.1 ETH
         const delta = solveLmsr(shares, 0, investment, b);
         expect(delta > 0n).toBe(true);
     });

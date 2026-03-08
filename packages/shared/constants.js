@@ -1,5 +1,5 @@
 /**
- * @fileoverview Shared constants for BanhMiCast across Move and CRE packages.
+ * @fileoverview Shared constants for BanhMiCast across contracts and CRE packages.
  * @module @banhmicast/shared/constants
  */
 
@@ -14,11 +14,11 @@ export const PRECISION = 10n ** 18n;
 export const MAX_OUTCOMES = 256;
 
 // =============================================================================
-// Sui On-chain Constants (must mirror values in Move modules)
+// On-chain Constants (must mirror values in Solidity contracts)
 // =============================================================================
 
-/** Minimum bet amount in MIST (1 SUI = 1_000_000_000 MIST). */
-export const MIN_BET_AMOUNT = 1_000_000n; // 0.001 SUI
+/** Minimum bet amount in wei (1 ETH = 1e18 wei). */
+export const MIN_BET_AMOUNT = 1_000_000_000_000_000n; // 0.001 ETH
 
 /** Grace period before emergency refund is allowed (30 minutes in ms). */
 export const GRACE_PERIOD_MS = 30n * 60n * 1000n;
@@ -36,5 +36,5 @@ export const MAX_BATCH_SIZE = 500;
 /** Batch interval / epoch duration in milliseconds. */
 export const BATCH_INTERVAL_MS = 2000;
 
-/** Length of SHA3-256 hash in bytes. */
+/** Length of keccak256 hash in bytes. */
 export const COMMITMENT_HASH_LENGTH = 32;

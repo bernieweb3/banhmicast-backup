@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { EXPLORER_URL } from '../lib/eth-config';
 import './TransactionFeedback.css';
 
 /**
  * TransactionFeedback — The "Wait" UX.
  *
  * Shows: Signing → Processing (shield animation) → Success/Error.
- * Includes: SuiScan link, Batch Pulse progress, error recovery.
+ * Includes: Etherscan link, Batch Pulse progress, error recovery.
  */
 export default function TransactionFeedback({ state, txHash, errorMsg, onClose }) {
     const [progress, setProgress] = useState(0);
@@ -31,15 +32,15 @@ export default function TransactionFeedback({ state, txHash, errorMsg, onClose }
                 <div className="tx-feedback__icon">✅</div>
                 <div className="tx-feedback__content">
                     <h4>Order Executed!</h4>
-                    <p className="text-secondary">Your prediction has been securely committed to Sui.</p>
+                    <p className="text-secondary">Your prediction has been securely committed to Sepolia.</p>
                     {txHash && (
                         <a
-                            href={`https://suiscan.xyz/testnet/tx/${txHash}`}
+                            href={`${EXPLORER_URL}/tx/${txHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="tx-feedback__link"
                         >
-                            View on SuiScan →
+                            View on Etherscan →
                         </a>
                     )}
                 </div>

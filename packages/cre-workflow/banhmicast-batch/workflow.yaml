@@ -3,7 +3,7 @@
 # ==========================================================================
 # Workflow: banhmicast-batch
 # Description: Privacy-preserving LMSR batch computation for BanhMiCast
-#   Prediction Market on Sui. Fetches encrypted bets from Walrus storage,
+#   Prediction Market on ETH Sepolia. Processes encrypted bets,
 #   runs LMSR pricing inside the CRE WASM sandbox, outputs ExecutionResult.
 #
 # Usage:

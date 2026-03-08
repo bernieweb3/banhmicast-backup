@@ -25,7 +25,7 @@ function createTestBlob(outcomeIndex, investmentAmount) {
 
 function mockMarketState() {
     return {
-        marketId: '0xMARKET',
+        marketId: '1',
         liquidityB: 1000n,
         sharesSupply: [0n, 0n],
         currentPrices: [PRECISION / 2n, PRECISION / 2n],
@@ -41,23 +41,14 @@ describe('cre-handler', () => {
         const hash1 = simpleHash(blob1);
         const hash2 = simpleHash(blob2);
 
-        const mockWalrus = {
-            fetchBatchBlobs: async (ids) => {
-                const map = new Map();
-                map.set('blob-a', blob1);
-                map.set('blob-b', blob2);
-                return map;
-            },
-        };
-
-        const handler = createCreHandler({ walrusClient: mockWalrus });
+        const handler = createCreHandler();
         const result = await handler.handleBatch(
             {
-                marketId: '0xMARKET',
+                marketId: '1',
                 currentState: mockMarketState(),
                 batch: [
-                    { user: '0xA1', blobId: 'blob-a', commitmentHash: hash1 },
-                    { user: '0xA2', blobId: 'blob-b', commitmentHash: hash2 },
+                    { user: '0xA1', encryptedData: blob1, commitmentHash: hash1 },
+                    { user: '0xA2', encryptedData: blob2, commitmentHash: hash2 },
                 ],
             },
             new Uint8Array([1]) // dummy DON key share
@@ -71,48 +62,40 @@ describe('cre-handler', () => {
         expect(result._meta.rejectedCount).toBe(0);
     });
 
-    test('walrus failure → structured error', async () => {
-        const mockWalrus = {
-            fetchBatchBlobs: async () => {
-                throw new Error('network timeout');
+    test('missing encrypted data → order rejected, batch continues', async () => {
+        const blob = createTestBlob(0, 1_000_000n);
+        const correctHash = simpleHash(blob);
+
+        const handler = createCreHandler();
+        const result = await handler.handleBatch(
+            {
+                marketId: '1',
+                currentState: mockMarketState(),
+                batch: [
+                    { user: '0xGood', encryptedData: blob, commitmentHash: correctHash },
+                    { user: '0xBad', encryptedData: null, commitmentHash: 'abc' },
+                ],
             },
-        };
+            new Uint8Array([1])
+        );
 
-        const handler = createCreHandler({ walrusClient: mockWalrus });
-
-        await expect(
-            handler.handleBatch(
-                {
-                    marketId: '0xM',
-                    currentState: mockMarketState(),
-                    batch: [{ user: '0x', blobId: 'x', commitmentHash: 'abc' }],
-                },
-                new Uint8Array([1])
-            )
-        ).rejects.toThrow('WALRUS_FETCH_FAILED');
+        expect(result.payoutAdjustments.length).toBe(1);
+        expect(result.payoutAdjustments[0].user).toBe('0xGood');
+        expect(result._meta.rejectedCount).toBe(1);
     });
 
     test('invalid commitment hash → order rejected, batch continues', async () => {
         const blob = createTestBlob(0, 1_000_000n);
         const correctHash = simpleHash(blob);
 
-        const mockWalrus = {
-            fetchBatchBlobs: async () => {
-                const map = new Map();
-                map.set('blob-ok', blob);
-                map.set('blob-bad', blob); // same data but wrong hash below
-                return map;
-            },
-        };
-
-        const handler = createCreHandler({ walrusClient: mockWalrus });
+        const handler = createCreHandler();
         const result = await handler.handleBatch(
             {
-                marketId: '0xM',
+                marketId: '1',
                 currentState: mockMarketState(),
                 batch: [
-                    { user: '0xGood', blobId: 'blob-ok', commitmentHash: correctHash },
-                    { user: '0xBad', blobId: 'blob-bad', commitmentHash: 'wrong_hash' },
+                    { user: '0xGood', encryptedData: blob, commitmentHash: correctHash },
+                    { user: '0xBad', encryptedData: blob, commitmentHash: 'wrong_hash' },
                 ],
             },
             new Uint8Array([1])
@@ -128,7 +111,7 @@ describe('cre-handler', () => {
         const handler = createCreHandler();
         const result = await handler.handleBatch(
             {
-                marketId: '0xM',
+                marketId: '1',
                 currentState: mockMarketState(),
                 batch: [],
             },

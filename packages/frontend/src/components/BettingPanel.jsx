@@ -1,21 +1,19 @@
 import { useState, useCallback } from 'react';
-import { useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
-import { Transaction } from '@mysten/sui/transactions';
-import { PACKAGE_ID, WALRUS_PUBLISHER, MIST_PER_SUI } from '../lib/sui-config';
+import { Contract, parseEther, keccak256, toUtf8Bytes } from 'ethers';
+import { useWallet } from '../lib/useWallet';
+import { ESCROW_ADDRESS, ESCROW_ABI } from '../lib/eth-config';
 import TransactionFeedback from './TransactionFeedback';
 import './BettingPanel.css';
 
 /**
  * BettingPanel — Secure Order Entry (right column of War Room).
  *
- * Flow: Enter amount → Preview → Encrypt → Walrus upload → commit_bet() on Sui.
+ * Flow: Enter amount → Preview → Hash commitment → commitBet() on Sepolia.
  */
 export default function BettingPanel({ market, selectedOutcome, outcomes, prices }) {
-    const account = useCurrentAccount();
-    const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+    const { account, signer } = useWallet();
 
     const [amount, setAmount] = useState('');
-    const [privacyShield, setPrivacyShield] = useState(true);
     const [txState, setTxState] = useState(null); // null | 'signing' | 'processing' | 'success' | 'error'
     const [txHash, setTxHash] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
@@ -28,80 +26,43 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
     const canSubmit = account && selectedOutcome !== null && amountNum > 0.001;
 
     const handleSubmit = useCallback(async () => {
-        if (!canSubmit) return;
-
-        // Guard: market must have a valid Sui object ID (hex address)
-        if (!market.id || !market.id.startsWith('0x') || market.id.length < 10) {
-            setErrorMsg('Invalid market ID — this market is not deployed on-chain.');
-            setTxState('error');
-            return;
-        }
+        if (!canSubmit || !signer) return;
 
         try {
             // Step 1: Signing
             setTxState('signing');
 
-            // Prepare encrypted payload
+            // Prepare payload
             const payload = JSON.stringify({
                 outcomeIndex: selectedOutcome,
-                investmentMist: String(Math.round(amountNum * MIST_PER_SUI)),
+                investmentWei: parseEther(amountNum.toString()).toString(),
             });
 
-            // Step 2: Upload to Walrus
+            // Step 2: Create commitment hash
             setTxState('processing');
+            const commitmentHash = keccak256(toUtf8Bytes(payload));
 
-            let blobId = 'DEMO_BLOB';
-            try {
-                const walrusResp = await fetch(
-                    `${WALRUS_PUBLISHER}/v1/blobs?epochs=5`,
-                    {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: payload,
-                    }
-                );
-                const walrusData = await walrusResp.json();
-                blobId = walrusData?.newlyCreated?.blobObject?.blobId
-                    || walrusData?.alreadyCertified?.blobId
-                    || 'DEMO_BLOB';
-            } catch (e) {
-                console.warn('Walrus upload failed, using demo blob:', e);
-            }
+            // Step 3: Submit commitBet() to Escrow contract on Sepolia
+            const escrow = new Contract(ESCROW_ADDRESS, ESCROW_ABI, signer);
+            const amountWei = parseEther(amountNum.toString());
 
-            // Step 3: Create commitment hash (simple hash for demo)
-            const encoder = new TextEncoder();
-            const data = encoder.encode(payload);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const tx = await escrow.commitBet(
+                market.id,       // marketId (uint256)
+                payload,         // encryptedPayloadCid (stores the payload directly)
+                commitmentHash,  // bytes32
+                { value: amountWei }
+            );
 
-            // Step 4: Submit commit_bet() to Sui
-            const tx = new Transaction();
-            const amountMist = BigInt(Math.round(amountNum * MIST_PER_SUI));
-            const [coin] = tx.splitCoins(tx.gas, [amountMist]);
+            const receipt = await tx.wait();
 
-            tx.moveCall({
-                target: `${PACKAGE_ID}::escrow::commit_bet`,
-                arguments: [
-                    tx.object(market.id),
-                    coin,
-                    tx.pure.string(blobId),
-                    tx.pure.vector('u8', hashArray),
-                    tx.object('0x6'), // Sui shared Clock object
-                ],
-            });
-
-            const result = await signAndExecute({
-                transaction: tx,
-            });
-
-            setTxHash(result.digest);
+            setTxHash(receipt.hash);
             setTxState('success');
         } catch (err) {
             console.error('Bet submission error:', err);
-            setErrorMsg(err.message || 'Transaction failed');
+            setErrorMsg(err.reason || err.message || 'Transaction failed');
             setTxState('error');
         }
-    }, [canSubmit, selectedOutcome, amountNum, market, signAndExecute]);
+    }, [canSubmit, selectedOutcome, amountNum, market, signer]);
 
     const handleReset = () => {
         setTxState(null);
@@ -133,9 +94,9 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         min="0"
-                        step="0.1"
+                        step="0.001"
                     />
-                    <span className="betting-panel__currency">SUI</span>
+                    <span className="betting-panel__currency">ETH</span>
                 </div>
             </div>
 
@@ -143,7 +104,7 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
             <div className="betting-panel__metrics">
                 <div className="betting-panel__metric">
                     <span className="text-muted">Potential Payout</span>
-                    <span className="font-mono text-lime">{potentialReturn} SUI</span>
+                    <span className="font-mono text-lime">{potentialReturn} ETH</span>
                 </div>
                 <div className="betting-panel__metric">
                     <span className="text-muted">Price Impact</span>
@@ -153,24 +114,6 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
                     <span className="text-muted">Current Price</span>
                     <span className="font-mono">{price}%</span>
                 </div>
-            </div>
-
-            {/* Privacy Shield Toggle */}
-            <div className="betting-panel__privacy">
-                <label className="betting-panel__toggle">
-                    <input
-                        type="checkbox"
-                        checked={privacyShield}
-                        onChange={(e) => setPrivacyShield(e.target.checked)}
-                    />
-                    <span className="betting-panel__toggle-slider"></span>
-                    <span className="betting-panel__toggle-label">
-                        🛡️ Encrypted Batching {privacyShield ? 'ON' : 'OFF'}
-                    </span>
-                </label>
-                <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                    Your prediction is hidden from bots until the batch is sealed.
-                </span>
             </div>
 
             {/* Submit Button */}
@@ -185,13 +128,13 @@ export default function BettingPanel({ market, selectedOutcome, outcomes, prices
                     onClick={handleSubmit}
                 >
                     {txState === 'signing' ? '⏳ Check Wallet...' :
-                        txState === 'processing' ? '🛡️ Securing Your Prediction...' :
-                            'ENCRYPT & SUBMIT ORDER'}
+                        txState === 'processing' ? '🛡️ Submitting...' :
+                            'SUBMIT ORDER'}
                 </button>
             )}
 
             <span className="betting-panel__gas text-muted">
-                Commitment gas: ~0.001 SUI
+                Commitment gas: ~0.001 ETH
             </span>
 
             {/* Transaction Feedback Overlay */}
