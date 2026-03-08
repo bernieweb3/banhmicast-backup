@@ -317,10 +317,15 @@ See [`LICENSE`](./LICENSE) for the full, legally binding terms.
 
 ---
 
-## Author
+## Team — Phú Nhuận Builder
 
-**Bernie Nguyen**  
-Email: [bernie.web3@gmail.com](mailto:bernie.web3@gmail.com)
+| Role | Name |
+|:---|:---|
+| 🏆 **Leader** | Anh Phung |
+| 💻 **Vice Leader / Core Developer** | Bernie Nguyen |
+| 🔬 **Member / Researcher** | Khai Truong |
+
+📧 Contact: [bernie.web3@gmail.com](mailto:bernie.web3@gmail.com)
 
 ---
 
