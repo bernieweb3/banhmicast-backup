@@ -2,13 +2,12 @@
 
 # 🥖 BanhMiCast
 
-**Privacy-Preserving Prediction Market on Sui**  
-*Joint-Outcome AMM · Chainlink CRE · Walrus Storage*
+**Privacy-Preserving Prediction Market on Ethereum Sepolia**  
+*Joint-Outcome AMM · Chainlink CRE · Solidity Smart Contracts*
 
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](./LICENSE)
-[![Sui Testnet](https://img.shields.io/badge/Sui-Testnet-4CA2FF?logo=sui)](https://suiscan.xyz/testnet/object/0x352a63e9364222707eeeaae0d49bac9bce2b089a2ceeeebf0716f7701932c32f)
+[![ETH Sepolia](https://img.shields.io/badge/Ethereum-Sepolia%20Testnet-627EEA?logo=ethereum)](https://sepolia.etherscan.io)
 [![Chainlink CRE](https://img.shields.io/badge/Chainlink-CRE%20Workflow-375BD2?logo=chainlink)](./packages/cre-workflow)
-[![Walrus](https://img.shields.io/badge/Storage-Walrus%20Testnet-F2A65A)](https://walrus.space)
 
 </div>
 
@@ -16,14 +15,14 @@
 
 ## Overview
 
-BanhMiCast is a decentralised prediction market built natively on the **Sui blockchain**. It solves the two biggest problem in prediction markets today:
+BanhMiCast is a decentralised prediction market built on **Ethereum Sepolia**. It solves the two biggest problems in prediction markets today:
 
 | Problem | BanhMiCast Solution |
 |:---|:---|
 | **Liquidity fragmentation** across many outcomes | **Joint-Outcome AMM (World Table)** — all outcomes share a unified pool |
 | **Front-running & copy-trading bots** | **Encrypted Batching** — user intent stays hidden until the CRE batch is sealed |
 
-The system uses **Chainlink Runtime Environment (CRE)** as a privacy-preserving off-chain compute layer, **Walrus** as decentralised encrypted payload storage, and **Sui Move** for high-concurrency on-chain settlement.
+The system uses **Chainlink Runtime Environment (CRE)** as a privacy-preserving off-chain compute layer and **Solidity on Ethereum Sepolia** for high-security on-chain settlement.
 
 ---
 
@@ -32,42 +31,41 @@ The system uses **Chainlink Runtime Environment (CRE)** as a privacy-preserving 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         User (Browser)                              │
-│  Client-side encrypt bet payload → submit commitment hash to Sui    │
-└───────────────┬────────────────────────────────────┬────────────────┘
-                │                                    │
-                ▼                                    ▼
-   ┌────────────────────┐               ┌────────────────────────┐
-   │  Walrus (Storage)  │               │   Sui Blockchain (L1)  │
-   │  Encrypted Blob    │               │   BetCommitment object │
-   │  ← Blob ID →       │               │   MarketObject (shared)│
-   └────────────────────┘               └────────────┬───────────┘
-                                                     │
-                              ┌──────────────────────┘
-                              ▼
-                 ┌────────────────────────┐
-                 │  Chainlink CRE (WASM)  │
-                 │  1. Fetch blobs        │
-                 │  2. Decrypt batch      │
-                 │  3. LMSR compute       │
-                 │  4. ExecutionResult    │
-                 └────────────┬───────────┘
-                              │
-                              ▼
-                 ┌────────────────────────┐
-                 │  Sui Blockchain (L1)   │
-                 │  Verify DON signature  │
-                 │  Update WorldTable     │
-                 │  Mint share objects    │
-                 └────────────────────────┘
+│  Client-side encrypt bet payload → submit commitment hash to Escrow │
+└───────────────┬─────────────────────────────────────────────────────┘
+                │
+                ▼
+   ┌────────────────────────────┐
+   │  Ethereum Sepolia (L1)     │
+   │  BetCommitment (Escrow)    │
+   │  MarketObject (Market)     │
+   └────────────┬───────────────┘
+                │
+                ▼
+   ┌────────────────────────┐
+   │  Chainlink CRE (WASM)  │
+   │  1. Read commitments   │
+   │  2. Decrypt batch      │
+   │  3. LMSR compute       │
+   │  4. ExecutionResult    │
+   └────────────┬───────────┘
+                │
+                ▼
+   ┌────────────────────────────┐
+   │  Ethereum Sepolia (L1)     │
+   │  Verify DON signature      │
+   │  Update WorldTable prices  │
+   │  Mint share positions      │
+   └────────────────────────────┘
 ```
 
 ### Key Components
 
 | Package | Language | Purpose |
 |:---|:---|:---|
-| `packages/move` | Sui Move | On-chain: market state, escrow, DON verifier |
-| `packages/cre-workflow` | Go + WASM | Chainlink CRE: LMSR compute + Walrus HTTP |
-| `packages/cre` | JavaScript | Off-chain helpers: LMSR engine, batch processor, Walrus client |
+| `packages/contracts` | Solidity + Foundry | On-chain: market state, escrow, DON verifier |
+| `packages/cre-workflow` | Go + WASM | Chainlink CRE: LMSR compute, encrypted batching |
+| `packages/cre` | JavaScript | Off-chain helpers: LMSR engine, batch processor, decryptor |
 | `packages/shared` | JavaScript | Shared constants, types |
 | `packages/frontend` | React + Vite | Web UI: Explore, War Room (WorldTable + BettingPanel), Portfolio |
 
@@ -83,7 +81,7 @@ The system uses **Chainlink Runtime Environment (CRE)** as a privacy-preserving 
 | [`packages/cre-workflow/banhmicast-batch/lmsr.go`](./packages/cre-workflow/banhmicast-batch/lmsr.go) | LMSR pricing engine in Go (pure BigInt) |
 | [`packages/cre-workflow/project.yaml`](./packages/cre-workflow/project.yaml) | CRE project config (RPC targets) |
 | [`packages/cre-workflow/banhmicast-batch/workflow.yaml`](./packages/cre-workflow/banhmicast-batch/workflow.yaml) | CRE workflow config (cron trigger + config path) |
-| [`packages/cre-workflow/banhmicast-batch/config.testnet.json`](./packages/cre-workflow/banhmicast-batch/config.testnet.json) | Testnet simulation config (Walrus URL, market ID, sample commitments) |
+| [`packages/cre-workflow/banhmicast-batch/config.testnet.json`](./packages/cre-workflow/banhmicast-batch/config.testnet.json) | Testnet simulation config (market ID, sample commitments) |
 
 ### Simulating the CRE Workflow
 
@@ -106,25 +104,21 @@ cre workflow simulate banhmicast-batch --target testnet-settings --verbose
 ```
 ✓ Workflow compiled
 [USER LOG] 🥖 BanhMiCast batch epoch started
-[USER LOG] 📦 Fetching blobs from Walrus  count=2
-[USER LOG] ✅ Walrus blobs fetched
-[USER LOG] 🔓 Decryption complete  valid=2 rejected=0
+[USER LOG]  Decryption complete  valid=2 rejected=0
 [USER LOG] 🎯 ExecutionResult computed  allocations=2
-[USER LOG] ✅ Batch complete — ready for Sui submission
+[USER LOG] ✅ Batch complete — ready for Sepolia submission
 ✓ Simulation complete!
 ```
 
 ---
 
-## Deployed Contracts (Sui Testnet)
+## Deployed Contracts (Ethereum Sepolia)
 
-| Object | ID |
+| Contract | Address |
 |:---|:---|
-| **Package** | [`0x352a...c32f`](https://suiscan.xyz/testnet/object/0x352a63e9364222707eeeaae0d49bac9bce2b089a2ceeeebf0716f7701932c32f) |
-| **AdminCap** | `0xad72...2437` |
-| **VerifierConfig** (shared) | `0x1ff1...4f5b` |
-
-Modules: `errors` · `escrow` · `market` · `verifier`
+| **BanhMiCastVerifier** | [`0x9db8fC6Fd8Ea07044C6dCA4AD4A1E21D8faCBa75`](https://sepolia.etherscan.io/address/0x9db8fC6Fd8Ea07044C6dCA4AD4A1E21D8faCBa75) |
+| **BanhMiCastMarket** | [`0xD782a3f67dc7d870aB8bb368FC429dC0BcBd4935`](https://sepolia.etherscan.io/address/0xD782a3f67dc7d870aB8bb368FC429dC0BcBd4935) |
+| **BanhMiCastEscrow** | [`0x21241e3991811AcA1840D8471642A2C48b9D0E75`](https://sepolia.etherscan.io/address/0x21241e3991811AcA1840D8471642A2C48b9D0E75) |
 
 ---
 
@@ -133,9 +127,10 @@ Modules: `errors` · `escrow` · `market` · `verifier`
 | Tool | Version | Install |
 |:---|:---|:---|
 | Go | ≥ 1.22 | `brew install go` |
-| Sui CLI | latest | [docs.sui.io](https://docs.sui.io/guides/developer/getting-started/sui-install) |
+| Foundry | latest | `curl -L https://foundry.paradigm.xyz \| bash` |
 | CRE CLI | v1.2.0 | [Download binary](https://github.com/smartcontractkit/cre-cli/releases) |
 | Node.js | ≥ 18 | [nodejs.org](https://nodejs.org) |
+| MetaMask | latest | With Sepolia testnet + test ETH from [faucet](https://sepoliafaucet.com) |
 
 ### Installing CRE CLI (macOS ARM)
 
@@ -158,7 +153,7 @@ cre version   # → CRE CLI version v1.2.0
 
 ```bash
 # Clone
-git clone https://github.com/<your-org>/banhmicast.git
+git clone https://github.com/bernieweb3/banhmicast.git
 cd banhmicast
 
 # Install JavaScript dependencies (CRE helpers + tests)
@@ -170,26 +165,23 @@ cd ../frontend && npm install
 npm run dev   # → http://localhost:5173
 ```
 
-### Build Move Contracts
+### Build & Test Contracts (Foundry)
 
 ```bash
-cd packages/move
-sui move build
+cd packages/contracts
+
+# Build
+forge build
+
+# Test (26 unit tests)
+forge test -v
 ```
 
-### Run All Tests
+### Run CRE JavaScript Tests
 
 ```bash
-# Move unit tests
-cd packages/move
-sui move test
-
-# CRE JavaScript tests (Jest)
 cd packages/cre
 npm test
-
-# Or run both with the convenience script:
-bash scripts/test-all.sh
 ```
 
 ---
@@ -214,7 +206,7 @@ cre workflow simulate banhmicast-batch --target testnet-settings \
 ### How It Works
 
 1. **Cron trigger** fires — CRE CLI compiles `main.go` to WASM and starts the workflow.
-2. **Walrus HTTP fetch** — the workflow fetches each encrypted bet blob from `aggregator.walrus-testnet.walrus.space`.
+2. **Read encrypted payloads** — the workflow reads committed encrypted bets directly from the batch config.
 3. **Decrypt & verify** — inside the WASM sandbox; plaintext never leaves.
 4. **LMSR batch compute** — deterministic BigInt pricing, sorted by commitment hash.
 5. **ExecutionResult** — JSON output contains new share supplies, price updates (`5×10¹⁷ = 50%`), and per-user allocations.
@@ -238,24 +230,26 @@ All arithmetic uses `BigInt` with 18-decimal fixed-point precision to avoid floa
 
 ---
 
-## Deploying to Sui Testnet
+## Deploying to Ethereum Sepolia
 
 ```bash
-cd packages/move
+cd packages/contracts
 
-# Make sure your wallet has testnet SUI
-sui client faucet
+# Set your private key
+export CRE_ETH_PRIVATE_KEY=0x<your_key>
 
-# Deploy
-sui client publish --gas-budget 200000000
+# Deploy contracts
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://1rpc.io/sepolia \
+  --private-key $CRE_ETH_PRIVATE_KEY \
+  --broadcast
 
-# After deploy, initialise VerifierConfig
-sui client ptb \
-  --move-call <PACKAGE_ID>::verifier::initialize \
-  --args <ADMIN_CAP_ID> <DON_PUBLIC_KEY_HEX>
+# Seed demo markets (after deploy)
+forge script script/SeedMarkets.s.sol:SeedMarkets \
+  --rpc-url https://1rpc.io/sepolia \
+  --private-key $CRE_ETH_PRIVATE_KEY \
+  --broadcast
 ```
-
-> See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the current testnet contract addresses.
 
 ---
 
@@ -264,12 +258,12 @@ sui client ptb \
 ```
 banhmicast/
 ├── packages/
-│   ├── move/                  # Sui Move smart contracts
-│   │   └── sources/
-│   │       ├── market.move    # WorldTable (shared object)
-│   │       ├── escrow.move    # Collateral locking & payout
-│   │       ├── verifier.move  # DON signature verification
-│   │       └── errors.move    # Error constants
+│   ├── contracts/             # Solidity smart contracts (Foundry)
+│   │   └── src/
+│   │       ├── BanhMiCastMarket.sol    # WorldTable (AMM state)
+│   │       ├── BanhMiCastEscrow.sol    # Collateral locking & payout
+│   │       ├── BanhMiCastVerifier.sol  # DON ECDSA verification
+│   │       └── BanhMiCastErrors.sol    # Custom error library
 │   ├── cre-workflow/          # Chainlink CRE Workflow (Go → WASM)
 │   │   ├── project.yaml
 │   │   └── banhmicast-batch/
@@ -282,18 +276,16 @@ banhmicast/
 │   │       ├── cre-handler.js
 │   │       ├── lmsr-engine.js
 │   │       ├── batch-processor.js
-│   │       ├── walrus-client.js
 │   │       └── decryptor.js
-│   ├── frontend/              # React web UI (Vite)
+│   ├── frontend/              # React web UI (Vite + ethers.js)
 │   │   └── src/
 │   │       ├── components/    # MarketCard, WorldTable, BettingPanel, etc.
 │   │       ├── pages/         # ExplorePage, MarketPage, PortfolioPage
 │   │       ├── styles/        # Obsidian Crust design system CSS
-│   │       └── lib/           # sui-config.js (contract addresses)
+│   │       └── lib/           # eth-config.js, useWallet.jsx
 │   └── shared/                # Shared constants & types
 ├── scripts/
 │   └── test-all.sh
-├── DEPLOYMENT.md
 ├── LICENSE
 └── README.md
 ```
@@ -304,8 +296,8 @@ banhmicast/
 
 - **Anti-Front-Running** — bets are encrypted client-side before submission; validators only see commitment hashes.
 - **Threshold Decryption** — no single CRE node can decrypt a batch alone; requires a 2/3 quorum of DON nodes.
-- **Replay Protection** — `last_batch_id` in `MarketObject` prevents batch replay attacks.
-- **Emergency Refund** — if no CRE update occurs within the grace period, users can call `emergency_refund()` to reclaim collateral.
+- **Replay Protection** — `lastBatchId` in `BanhMiCastMarket` prevents batch replay attacks.
+- **Emergency Refund** — if no CRE update occurs within the 30-minute grace period, users can call `emergencyRefund()` to reclaim collateral.
 
 ---
 
@@ -334,6 +326,6 @@ Email: [bernie.web3@gmail.com](mailto:bernie.web3@gmail.com)
 
 <div align="center">
 
-Built with ❤️ on Sui · Powered by Chainlink CRE · Stored on Walrus
+Built with ❤️ on Ethereum Sepolia · Powered by Chainlink CRE
 
 </div>

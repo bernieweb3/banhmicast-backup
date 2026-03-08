@@ -1,66 +1,99 @@
-## Foundry
+# BanhMiCast Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**Solidity smart contracts for BanhMiCast** — a privacy-preserving prediction market on **Ethereum Sepolia**.
 
-Foundry consists of:
+Built with [Foundry](https://book.getfoundry.sh/).
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+---
 
-## Documentation
+## Deployed Contracts (Sepolia Testnet)
 
-https://book.getfoundry.sh/
+| Contract | Address | Explorer |
+|:---|:---|:---|
+| **BanhMiCastVerifier** | `0x9db8fC6Fd8Ea07044C6dCA4AD4A1E21D8faCBa75` | [Etherscan](https://sepolia.etherscan.io/address/0x9db8fC6Fd8Ea07044C6dCA4AD4A1E21D8faCBa75) |
+| **BanhMiCastMarket** | `0xD782a3f67dc7d870aB8bb368FC429dC0BcBd4935` | [Etherscan](https://sepolia.etherscan.io/address/0xD782a3f67dc7d870aB8bb368FC429dC0BcBd4935) |
+| **BanhMiCastEscrow** | `0x21241e3991811AcA1840D8471642A2C48b9D0E75` | [Etherscan](https://sepolia.etherscan.io/address/0x21241e3991811AcA1840D8471642A2C48b9D0E75) |
+
+---
+
+## Contract Overview
+
+| Contract | Purpose |
+|:---|:---|
+| `BanhMiCastMarket.sol` | World Table AMM state — market creation, batch resolution, payout claims |
+| `BanhMiCastEscrow.sol` | Encrypted bet commitment — locks ETH collateral, emergency refund |
+| `BanhMiCastVerifier.sol` | DON ECDSA signature verification |
+| `BanhMiCastErrors.sol` | Custom error library (gas-efficient reverts) |
+
+---
 
 ## Usage
 
 ### Build
 
 ```shell
-$ forge build
+forge build
 ```
 
 ### Test
 
 ```shell
-$ forge test
+# Run all 26 unit tests
+forge test -v
+
+# With gas report
+forge test --gas-report
 ```
 
 ### Format
 
 ```shell
-$ forge fmt
+forge fmt
 ```
 
-### Gas Snapshots
+### Deploy to Sepolia
 
 ```shell
-$ forge snapshot
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://1rpc.io/sepolia \
+  --private-key $CRE_ETH_PRIVATE_KEY \
+  --broadcast
 ```
 
-### Anvil
+### Seed Demo Markets
 
 ```shell
-$ anvil
+forge script script/SeedMarkets.s.sol:SeedMarkets \
+  --rpc-url https://1rpc.io/sepolia \
+  --private-key $CRE_ETH_PRIVATE_KEY \
+  --broadcast
 ```
 
-### Deploy
+### Local Devnet (Anvil)
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+anvil
+forge script script/Deploy.s.sol:Deploy --rpc-url http://localhost:8545 --broadcast
 ```
 
-### Cast
+### Cast (interact with deployed contracts)
 
 ```shell
-$ cast <subcommand>
+# Check if market 1 is active
+cast call 0xD782a3f67dc7d870aB8bb368FC429dC0BcBd4935 "isActive(uint256)" 1 --rpc-url https://1rpc.io/sepolia
+
+# Get minimum bet
+cast call 0x21241e3991811AcA1840D8471642A2C48b9D0E75 "MIN_BET_WEI()" --rpc-url https://1rpc.io/sepolia
 ```
 
-### Help
+---
+
+## Help
 
 ```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+forge --help
+anvil --help
+cast --help
 ```
+
+Full Foundry docs: https://book.getfoundry.sh/
